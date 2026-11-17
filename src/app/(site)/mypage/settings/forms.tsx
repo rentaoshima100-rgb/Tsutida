@@ -43,7 +43,7 @@ export function EmailForm({ current }: { current: string }) {
   const [conf, confAction] = useActionState(confirmEmailChange, initialFormState);
   return (
     <Section title="メールアドレス">
-      <p>いまのアドレス：{conf.values?.done ? conf.values.email : current}</p>
+      <p className="[overflow-wrap:anywhere]">いまのアドレス：{conf.values?.done ? conf.values.email : current}</p>
       {conf.values?.done ? <Notice tone="success">{conf.message}</Notice> : !req.ok ? (
         <form action={reqAction} className="space-y-4" noValidate>
           {req.message ? <Notice tone="error">{req.message}</Notice> : null}

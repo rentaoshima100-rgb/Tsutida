@@ -42,7 +42,7 @@ export default async function SlipPage(props: PageProps<"/admin/orders/[orderNo]
         <Notice tone="warning" className="print:hidden">この注文は支払い待ちではありません（支払い済み・取り消し済みなど）。内容を確かめてから渡してください。</Notice>
       ) : null}
 
-      <article className="mx-auto max-w-[180mm] space-y-5 rounded-xl border bg-white p-8 text-[0.95rem] leading-relaxed text-ink print:max-w-none print:rounded-none print:border-0 print:p-0">
+      <article className="mx-auto max-w-[180mm] space-y-5 rounded-xl border bg-white p-4 text-[0.95rem] sm:p-8 leading-relaxed text-ink print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="flex items-start justify-between gap-4 border-b-2 border-ink pb-3">
           <div>
             <h1 className="text-2xl font-bold">{isCash ? "ご注文の控え" : "お支払いのご案内"}</h1>
@@ -57,9 +57,9 @@ export default async function SlipPage(props: PageProps<"/admin/orders/[orderNo]
         <section>
           <h2 className="mb-1 font-bold">ご注文の内容</h2>
           <p>{order.event.school.name}　{order.event.name}</p>
-          <table className="mt-2 w-full text-sm">
+          <table className="wrap-cells mt-2 w-full text-sm">
             <thead className="border-b text-left">
-              <tr><th className="py-1">お子さま</th><th>商品</th><th className="text-right">枚数</th><th className="text-right">金額</th></tr>
+              <tr><th className="py-1">お子さま</th><th>商品</th><th className="whitespace-nowrap text-right">枚数</th><th className="whitespace-nowrap text-right">金額</th></tr>
             </thead>
             <tbody>
               {items.map((i) => (
@@ -67,7 +67,7 @@ export default async function SlipPage(props: PageProps<"/admin/orders/[orderNo]
                   <td className="py-1.5">{i.child.full_name}（{i.grade_label_snapshot} {i.class_name_snapshot}）</td>
                   <td>{i.product_name_snapshot}</td>
                   <td className="text-right">{i.quantity}</td>
-                  <td className="text-right">{formatYen(i.amount)}</td>
+                  <td className="whitespace-nowrap text-right">{formatYen(i.amount)}</td>
                 </tr>
               ))}
               {order.shipping_fee > 0 ? (

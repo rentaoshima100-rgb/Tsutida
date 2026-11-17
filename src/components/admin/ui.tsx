@@ -16,14 +16,15 @@ export function PageHeader({ title, description, actions }: { title: string; des
 
 export function Panel({ title, children, actions, className }: { title?: string; children: React.ReactNode; actions?: React.ReactNode; className?: string }) {
   return (
-    <section className={cn("rounded-xl border bg-white", className)}>
+    <section className={cn("min-w-0 rounded-xl border bg-white", className)}>
       {title ? (
-        <div className="flex items-center justify-between gap-2 border-b px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-3">
           <h2 className="font-bold">{title}</h2>
           {actions}
         </div>
       ) : null}
-      <div className="p-4">{children}</div>
+      {/* スマホ幅では、幅の広い表を枠の中で横に動かす */}
+      <div className="overflow-x-auto p-4 md:overflow-x-visible">{children}</div>
     </section>
   );
 }

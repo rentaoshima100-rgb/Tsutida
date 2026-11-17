@@ -29,7 +29,11 @@ export function PaymentInstructions({
               {details.stores.map((s) => (
                 <li key={s.store} className="px-4 py-3">
                   <p className="font-bold">{s.store}</p>
-                  <p className="font-mono">お支払い番号 {s.paymentCode}{s.confirmationNumber ? `　確認番号 ${s.confirmationNumber}` : ""}</p>
+                  {/* 番号ごとにまとまりで折り返す（「確認番号」の途中で改行させない） */}
+                  <p className="flex flex-wrap gap-x-4 font-mono">
+                    <span className="whitespace-nowrap">お支払い番号 {s.paymentCode}</span>
+                    {s.confirmationNumber ? <span className="whitespace-nowrap">確認番号 {s.confirmationNumber}</span> : null}
+                  </p>
                 </li>
               ))}
             </ul>

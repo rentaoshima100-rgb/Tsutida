@@ -197,3 +197,39 @@
 .prose-site table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.95rem; display: block; overflow-x: auto; }
 .prose-site th, .prose-site td { border: 1px solid var(--line); padding: 0.6rem 0.75rem; text-align: left; vertical-align: top; }
 .prose-site th { background: var(--surface); font-weight: 700; white-space: nowrap; }
+/* スマホ幅：表が画面の外に出ないよう、見出しの折り返しを許して余白と文字を詰める */
+@media (max-width: 639px) {
+  .prose-site table { font-size: 0.875rem; }
+  .prose-site th, .prose-site td { padding: 0.5rem; }
+  .prose-site th { white-space: normal; }
+  /* 項目名の列が細くなりすぎて、1行に2〜3文字ずつになるのを防ぐ */
+  .prose-site :is(th, td):first-child { min-width: 5.5em; }
+}
+
+/* チェックボックス・ラジオボタンは、横の文が折り返しても横につぶさない */
+input[type="checkbox"], input[type="radio"] { flex-shrink: 0; }
+
+/* 管理画面のスマホ幅（〜767px）。パソコンの表示は変えない */
+@media (max-width: 767px) {
+  /* 中身の幅に引っぱられて枠が画面の外に出ないようにする */
+  .admin-console main :is(section, div, form, fieldset, label, dl, dd, ul, li, details, p) { min-width: 0; }
+  .admin-console :is(input, select, textarea) { max-width: 100%; min-width: 0; }
+  /* 表の中の入力欄は、つぶれないだけの幅を保つ（表ごと横に動かす） */
+  .admin-console main td :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select) { min-width: 5.5rem; }
+  /* 長いメールアドレスなどは途中で折り返す */
+  .admin-console main { overflow-wrap: anywhere; }
+  /* ボタンの横に並ぶ入力欄は、1行まるごと使う（横に並べると欄がつぶれる） */
+  .admin-console main label[class*="flex-1"] { flex-basis: 100%; }
+  /* 表のセルの中のボタンは横に並べる（縦に積むと行が高くなる） */
+  .admin-console main td > div[class*="flex-wrap"] { flex-wrap: nowrap; gap: 0.75rem; }
+  /* 16px 未満だと iPhone が入力のたびに拡大する */
+  .admin-console :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { font-size: 16px; }
+  /* 表は列をつぶさず、枠の中で横に動かす */
+  .admin-console main table:not(.wrap-cells) :is(th, td) { white-space: nowrap; }
+  .admin-console main table :is(th, td):not(:last-child) { padding-right: 0.75rem; }
+  /* 指で押せる高さ。ボタンの文字は途中で折り返さない */
+  .admin-console main :is(button, summary, a[class*="rounded"]) { min-height: 2.25rem; }
+  .admin-console main button { white-space: nowrap; }
+  .admin-console main a[class*="underline"] { display: inline-block; padding-block: 0.375rem; }
+  .admin-console main :is(input[type="checkbox"], input[type="radio"]) { width: 1.25rem; height: 1.25rem; }
+}
