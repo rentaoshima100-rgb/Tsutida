@@ -96,9 +96,9 @@ export function EventView({ data, playbackNote, children }: { data: EventViewDat
                 <span className="ml-2 rounded bg-surface px-1.5 py-0.5 text-xs font-bold text-muted-foreground">{MEDIA_LABEL[p.media]}</span>
               </span>
               {p.canceled ? (
-                <span className="font-bold text-danger">販売中止</span>
+                <span className="ml-auto font-bold text-danger">販売中止</span>
               ) : (
-                <span className="text-right">
+                <span className="ml-auto text-right">
                   <span className="text-lg font-bold">{formatYen(p.price)}</span>
                   {p.secondPrice && p.secondPrice !== p.price ? (
                     <span className="block text-sm text-muted-foreground">2枚目から {formatYen(p.secondPrice)}</span>

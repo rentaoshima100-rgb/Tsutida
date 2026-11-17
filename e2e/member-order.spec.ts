@@ -68,6 +68,8 @@ test("コンビニ払い：払込票の発行 → 入金で支払い済み", asy
   const email = uniqueEmail("konbini");
   await signupMember(page, { email, name: "佐藤 一郎", kana: "さとう いちろう" });
   await registerChild(page, "TEST0K000001", "佐藤 そら", "さとう そら");
+  // 登録が終わる前に次のページへ移ると、登録後の画面の更新に戻されることがある
+  await expect(page.getByText("お子さまを登録しました")).toBeVisible();
   await page.goto("/events");
   await page.getByRole("link", { name: "行事のページを見る" }).first().click();
   await page.getByRole("link", { name: "注文する" }).click();

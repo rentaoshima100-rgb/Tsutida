@@ -50,7 +50,7 @@ export default async function AuditPage(props: PageProps<"/admin/audit">) {
                 <td>{AUDIT_ACTION_LABEL[l.action] ?? l.action}</td>
                 <td>{link(l.target_type, l.target_id)}</td>
                 <td className="px-3 py-2">
-                  <details><summary className="cursor-pointer text-xs text-muted-foreground">くわしく</summary><pre className="mt-1 max-w-xl overflow-x-auto whitespace-pre-wrap text-xs">{JSON.stringify(l.detail, null, 2)}</pre></details>
+                  <details><summary className="cursor-pointer text-xs text-muted-foreground">くわしく</summary><pre className="mt-1 min-w-64 max-w-xl overflow-x-auto whitespace-pre-wrap text-xs">{JSON.stringify(l.detail, null, 2)}</pre></details>
                 </td>
               </tr>
             ))}

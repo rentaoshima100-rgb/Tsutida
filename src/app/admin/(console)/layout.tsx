@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: { default: "管理画面", template: 
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   const staff = await requireStaff();
   return (
-    <div className="flex min-h-screen bg-surface print:block print:bg-white">
+    <div className="admin-console flex min-h-screen bg-surface print:block print:bg-white">
       <aside className="sticky top-0 hidden h-screen w-56 shrink-0 overflow-y-auto border-r bg-sidebar p-3 md:block print:hidden">
         <div className="mb-4 px-3 py-2">
           <p className="text-xs font-bold text-muted-foreground">ツチダ映像 注文サイト</p>
@@ -17,24 +17,24 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
         <AdminNav />
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between gap-3 border-b bg-white px-5 py-2.5 text-sm print:hidden">
+        <header className="flex items-center justify-between gap-3 border-b bg-white px-4 py-2.5 text-sm md:px-5 print:hidden">
           <details className="md:hidden">
-            <summary className="cursor-pointer font-bold">メニュー</summary>
+            <summary className="cursor-pointer whitespace-nowrap py-1.5 font-bold">メニュー</summary>
             <div className="absolute z-20 mt-2 w-64 rounded-xl border bg-white p-3 shadow-lg">
               <AdminNav />
             </div>
           </details>
           <span className="hidden md:block" />
-          <div className="flex items-center gap-3">
-            <span>
+          <div className="flex min-w-0 items-center gap-2 md:gap-3">
+            <span className="truncate">
               {staff.name}（{staff.role === "maintainer" ? "保守" : "管理者"}）
             </span>
-            <form action={adminSignOut}>
-              <button type="submit" className="rounded-md px-2 py-1 text-muted-foreground underline hover:bg-accent">ログアウト</button>
+            <form action={adminSignOut} className="shrink-0">
+              <button type="submit" className="whitespace-nowrap rounded-md px-2 py-1.5 text-muted-foreground underline hover:bg-accent">ログアウト</button>
             </form>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-6xl flex-1 space-y-5 p-5 print:max-w-none print:p-0">{children}</main>
+        <main className="mx-auto w-full max-w-6xl flex-1 space-y-5 p-4 md:p-5 print:max-w-none print:p-0">{children}</main>
       </div>
     </div>
   );
