@@ -39,6 +39,13 @@ test("会員登録 → コードの入力 → 注文 → カードで支払い�
   await page.screenshot({ path: "test-results/shots/m04-confirm.png", fullPage: true });
   await page.getByRole("button", { name: "注文を確定して支払う" }).click();
 
+  // 決済の画面で「戻る」を押しても、選んだ内容は消えない（確認の画面に戻り、そのまま確定し直せる）
+  await expect(page).toHaveURL(/\/dev\/fake-checkout/);
+  await page.getByRole("link", { name: "戻る（決済をやめる）" }).click();
+  await expect(page).toHaveURL(/\/order\/confirm/);
+  await expect(page.getByText("9,000円").last()).toBeVisible();
+  await page.getByRole("button", { name: "注文を確定して支払う" }).click();
+
   await expect(page).toHaveURL(/\/dev\/fake-checkout/);
   await page.getByRole("button", { name: "支払う" }).click();
   await expect(page).toHaveURL(/\/orders\/T\d{7}\/complete/);
@@ -46,6 +53,9 @@ test("会員登録 → コードの入力 → 注文 → カードで支払い�
   await page.screenshot({ path: "test-results/shots/m05-complete.png", fullPage: true });
 
   const orderNo = (await page.locator("p.font-mono").first().textContent())!.trim();
+  // 支払いが済んだあとは、同じ内容が注文手続きに残らない（二重の注文を防ぐ）
+  await page.goto("/events/00000000-0000-4000-8000-000000001001/order");
+  await expect(page.getByRole("button", { name: "確認へ進む" })).toBeDisabled();
   // 注文完了のメール（送信キューを流してから確かめる）
   await fetch("http://localhost:3000/api/cron/send", { headers: { authorization: "Bearer local-dev-cron-secret-0123456789" } });
   const mail = await latestMail(email, "ご注文ありがとうございます");
@@ -103,4 +113,14 @@ test("QR コードから：コードを読み取って会員登録 → お子さ
   expect(page.url()).not.toContain("TEST0M000002");
   await signupMember(page, { email: uniqueEmail("qr"), name: "読取 太郎", kana: "よみとり たろう" });
   await expect(page.getByLabel("登録コード（12文字）")).toHaveValue("TEST0M000002");
+});
+
+test("退会：手続きのあと、トップに「退会の手続きが終わりました」と出る", async ({ page }) => {
+  await signupMember(page, { email: uniqueEmail("taikai"), name: "退会 する", kana: "たいかい する" });
+  await page.goto("/mypage/settings");
+  page.once("dialog", (d) => d.accept());
+  await page.getByText("上の内容を確認しました").click();
+  await page.getByRole("button", { name: "退会する" }).click();
+  await expect(page).toHaveURL(/\/\?withdrawn=1$/);
+  await expect(page.getByText("退会の手続きが終わりました")).toBeVisible();
 });

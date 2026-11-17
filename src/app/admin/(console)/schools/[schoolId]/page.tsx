@@ -52,10 +52,10 @@ export default async function SchoolPage(props: PageProps<"/admin/schools/[schoo
                 <td colSpan={5} className="py-1.5">
                   <ActionForm action={saveClass.bind(null, school.id, c.id)} className="grid grid-cols-[1fr_5rem_1fr_7rem_auto] items-center gap-2">
                     <input type="hidden" name="fiscalYear" value={year} />
-                    <input name="gradeLabel" defaultValue={c.grade_label} className={inputClass} aria-label="学年" />
-                    <input name="gradeOrder" type="number" defaultValue={c.grade_order} className={inputClass} aria-label="並び順" />
-                    <input name="name" defaultValue={c.name} className={inputClass} aria-label="クラス名" />
-                    <input name="capacity" type="number" defaultValue={c.capacity} className={inputClass} aria-label="人数" />
+                    <input name="gradeLabel" defaultValue={c.grade_label} className={`${inputClass} w-full min-w-0`} aria-label="学年" />
+                    <input name="gradeOrder" type="number" defaultValue={c.grade_order} className={`${inputClass} w-full min-w-0`} aria-label="並び順" />
+                    <input name="name" defaultValue={c.name} className={`${inputClass} w-full min-w-0`} aria-label="クラス名" />
+                    <input name="capacity" type="number" defaultValue={c.capacity} className={`${inputClass} w-full min-w-0`} aria-label="人数" />
                     <SubmitButton size="sm" variant="outline">保存</SubmitButton>
                   </ActionForm>
                 </td>
@@ -65,10 +65,10 @@ export default async function SchoolPage(props: PageProps<"/admin/schools/[schoo
               <td colSpan={5} className="py-2">
                 <ActionForm action={saveClass.bind(null, school.id, null)} className="grid grid-cols-[1fr_5rem_1fr_7rem_auto] items-center gap-2">
                   <input type="hidden" name="fiscalYear" value={year} />
-                  <input name="gradeLabel" placeholder="例：年長" className={inputClass} aria-label="学年" />
-                  <input name="gradeOrder" type="number" placeholder="3" className={inputClass} aria-label="並び順" />
-                  <input name="name" placeholder="例：きりん組" className={inputClass} aria-label="クラス名" />
-                  <input name="capacity" type="number" placeholder="20" className={inputClass} aria-label="人数" />
+                  <input name="gradeLabel" placeholder="例：年長" className={`${inputClass} w-full min-w-0`} aria-label="学年" />
+                  <input name="gradeOrder" type="number" placeholder="3" className={`${inputClass} w-full min-w-0`} aria-label="並び順" />
+                  <input name="name" placeholder="例：きりん組" className={`${inputClass} w-full min-w-0`} aria-label="クラス名" />
+                  <input name="capacity" type="number" placeholder="20" className={`${inputClass} w-full min-w-0`} aria-label="人数" />
                   <SubmitButton size="sm">追加</SubmitButton>
                 </ActionForm>
               </td>

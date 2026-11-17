@@ -69,6 +69,32 @@ test("A09 代理注文：コンビニ払いでメールがないと止める（�
   await expect(page.getByRole("alert").filter({ hasText: "メールアドレスが必要です" })).toBeVisible();
   await expect(page.locator('input[name="childName"]')).toHaveValue("電話 じろう");
   await expect(page.locator('input[name="buyerPhone"]')).toHaveValue("090-0000-3333");
+  await expect(page.locator('select[name="classId"]')).not.toHaveValue("");
+});
+
+test("A05 行事を作る：入力エラーでも入力は消えない／商品の欄は中くらいの画面幅でもつぶれない", async () => {
+  await page.goto("/admin/events/new");
+  await page.locator('select[name="schoolId"]').selectOption({ label: "さくら幼稚園" });
+  await page.locator('input[name="name"]').fill("2026年度 入力の確認");
+  await page.locator('select[name="deliveryMethod"]').selectOption("mail");
+  await page.locator('input[name="saleStartsAt"]').fill("2026-12-10T09:00");
+  await page.locator('input[name="deadlineAt"]').fill("2026-12-01T09:00");
+  await page.locator('textarea[name="contents"]').fill("収録内容の確認");
+  await page.getByRole("button", { name: "作る（非公開）" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "締切は販売開始より後にしてください" })).toBeVisible();
+  await expect(page.locator('input[name="name"]')).toHaveValue("2026年度 入力の確認");
+  await expect(page.locator('select[name="schoolId"]')).not.toHaveValue("");
+  await expect(page.locator('select[name="deliveryMethod"]')).toHaveValue("mail");
+  await expect(page.locator('input[name="saleStartsAt"]')).toHaveValue("2026-12-10T09:00");
+  await expect(page.locator('textarea[name="contents"]')).toHaveValue("収録内容の確認");
+
+  await page.setViewportSize({ width: 852, height: 900 });
+  await page.goto(`/admin/events/${UNDOKAI}`);
+  for (const box of await page.locator('main input[name="name"]').all()) {
+    expect((await box.boundingBox())!.width).toBeGreaterThan(150);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.setViewportSize({ width: 1366, height: 900 });
 });
 
 test("A09 代理注文：締切後の受付（郵送のみ・締切後の価格）を現金で → A08 で入金を記録", async () => {

@@ -16,14 +16,20 @@ const STEPS = [
   { title: "お届け", body: "学校・園へのお届け、またはご自宅への郵送でお受け取りください。" },
 ];
 
-export default async function TopPage() {
+export default async function TopPage(props: PageProps<"/">) {
   if (await getMember()) redirect("/events");
+  const withdrawn = (await props.searchParams).withdrawn === "1";
   const s = await getPublicSettings();
   const vars = textVariables(s);
   const b = s.business_info;
 
   return (
     <div className="space-y-14">
+      {withdrawn ? (
+        <Notice tone="success" title="退会の手続きが終わりました">
+          ご利用ありがとうございました。ご注文の記録は、法律で決められた期間保管します。
+        </Notice>
+      ) : null}
       <section className="grid items-center gap-10 pt-2 sm:grid-cols-[1.1fr_1fr]">
         <div className="space-y-5">
           <h1 className="text-[1.75rem] font-bold leading-snug sm:text-[2rem]">

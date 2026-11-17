@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { inputClass, selectClass } from "@/components/admin/ui";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { Notice } from "@/components/site/notice";
@@ -51,6 +51,11 @@ export function ProxyOrderForm({
   const [state, formAction] = useActionState(action, initialFormState);
   const fixedDelivery: "school" | "mail" | null = isLate ? "mail" : deliveryMethod === "either" ? null : deliveryMethod;
   const [classId, setClassId] = useState("");
+  const classRef = useRef<HTMLSelectElement>(null);
+  // React は処理のあとフォームを初期値に戻す。エラーで戻ったときに、選んでいたクラスが「選ぶ」に戻らないようにする
+  useEffect(() => {
+    if (classId !== "" && classRef.current && classRef.current.value !== classId) classRef.current.value = classId;
+  }, [state, classId]);
   const [delivery, setDelivery] = useState<"school" | "mail">(fixedDelivery ?? "school");
   const [qty, setQty] = useState<Record<string, number>>({});
   const available: Method[] = [...(methods.konbini ? (["konbini"] as const) : []), ...(methods.bank_transfer ? (["bank_transfer"] as const) : []), "cash"];
@@ -78,7 +83,7 @@ export function ProxyOrderForm({
         <fieldset className="space-y-3">
           <legend className="mb-2 text-base font-bold">お子さま</legend>
           <Field label="学年・クラス" required>
-            <select name="classId" required value={classId} onChange={(e) => setClassId(e.target.value)} className={`${selectClass} h-10 w-full max-w-sm`}>
+            <select ref={classRef} name="classId" required value={classId} onChange={(e) => setClassId(e.target.value)} className={`${selectClass} h-10 w-full max-w-sm`}>
               <option value="" disabled>選ぶ</option>
               {classes.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
             </select>

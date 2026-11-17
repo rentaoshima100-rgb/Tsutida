@@ -95,8 +95,8 @@ export default async function EventAdminPage(props: PageProps<"/admin/events/[ev
               // eslint-disable-next-line @next/next/no-img-element
               <img src={jacket} alt="ジャケット" className="h-40 w-30 rounded border object-cover" />
             ) : <div className="flex h-40 w-30 items-center justify-center rounded border bg-surface text-xs text-muted-foreground">なし</div>}
-            <ActionForm action={uploadJacket.bind(null, event.id)} className="space-y-2 text-sm">
-              <input type="file" name="file" accept="image/jpeg,image/png,image/webp" className="text-sm" />
+            <ActionForm action={uploadJacket.bind(null, event.id)} className="min-w-0 flex-1 space-y-2 text-sm">
+              <input type="file" name="file" accept="image/jpeg,image/png,image/webp" className="w-full min-w-0 text-sm" />
               <p className="text-xs text-muted-foreground">JPEG・PNG・WebP、5MBまで</p>
               <SubmitButton variant="outline" size="sm">アップロード</SubmitButton>
             </ActionForm>
@@ -112,15 +112,15 @@ export default async function EventAdminPage(props: PageProps<"/admin/events/[ev
                 <p className="text-sm"><span className="font-bold">{p.name}</span>（{MEDIA_LABEL[p.media as "dvd" | "bluray"]}）{formatYen(p.price)}　<span className="font-bold text-danger">販売中止</span></p>
               ) : (
                 <>
-                  <ActionForm action={saveProduct.bind(null, event.id, p.id)} className="grid items-end gap-2 text-sm sm:grid-cols-[6rem_1fr_6rem_6rem_6rem_4rem_auto]">
+                  <ActionForm action={saveProduct.bind(null, event.id, p.id)} className="grid items-end gap-2 text-sm sm:grid-cols-3 xl:grid-cols-[6rem_1fr_6rem_6rem_6rem_4rem_auto]">
                     <label className="space-y-1"><span className="block text-xs text-muted-foreground">種類</span><select name="media" defaultValue={p.media} className={`${selectClass} w-full`}><option value="dvd">DVD</option><option value="bluray">Blu-ray</option></select></label>
-                    <label className="space-y-1"><span className="block text-xs text-muted-foreground">商品名</span><input name="name" defaultValue={p.name} className={`${inputClass} w-full`} /></label>
+                    <label className="space-y-1 sm:col-span-2 xl:col-span-1"><span className="block text-xs text-muted-foreground">商品名</span><input name="name" defaultValue={p.name} className={`${inputClass} w-full`} /></label>
                     <label className="space-y-1"><span className="block text-xs text-muted-foreground">価格</span><input name="price" inputMode="numeric" defaultValue={p.price} className={`${inputClass} w-full`} /></label>
                     <label className="space-y-1"><span className="block text-xs text-muted-foreground">2枚目以降</span><input name="secondPrice" inputMode="numeric" defaultValue={p.second_price ?? ""} className={`${inputClass} w-full`} /></label>
                     <label className="space-y-1"><span className="block text-xs text-muted-foreground">締切後</span><input name="latePrice" inputMode="numeric" defaultValue={p.late_price ?? ""} className={`${inputClass} w-full`} /></label>
                     <label className="space-y-1"><span className="block text-xs text-muted-foreground">並び</span><input name="sortOrder" inputMode="numeric" defaultValue={p.sort_order} className={`${inputClass} w-full`} /></label>
                     <SubmitButton size="sm" variant="outline">保存</SubmitButton>
-                    <details className="text-xs sm:col-span-7">
+                    <details className="text-xs sm:col-span-3 xl:col-span-7">
                       <summary className="cursor-pointer text-muted-foreground">この商品の対象を一部のクラスに絞る（空なら行事の対象と同じ）</summary>
                       <div className="mt-1 flex flex-wrap gap-3">
                         {(classes ?? []).filter((c) => targetSet.has(c.id)).map((c) => (
@@ -143,9 +143,9 @@ export default async function EventAdminPage(props: PageProps<"/admin/events/[ev
             </div>
           ))}
           {!canceled ? (
-            <ActionForm action={saveProduct.bind(null, event.id, null)} className="grid items-end gap-2 rounded-lg border border-dashed p-3 text-sm sm:grid-cols-[6rem_1fr_6rem_6rem_6rem_4rem_auto]">
+            <ActionForm action={saveProduct.bind(null, event.id, null)} className="grid items-end gap-2 rounded-lg border border-dashed p-3 text-sm sm:grid-cols-3 xl:grid-cols-[6rem_1fr_6rem_6rem_6rem_4rem_auto]">
               <label className="space-y-1"><span className="block text-xs text-muted-foreground">種類</span><select name="media" className={`${selectClass} w-full`}><option value="dvd">DVD</option><option value="bluray">Blu-ray</option></select></label>
-              <label className="space-y-1"><span className="block text-xs text-muted-foreground">商品名</span><input name="name" placeholder="例：運動会 DVD" className={`${inputClass} w-full`} /></label>
+              <label className="space-y-1 sm:col-span-2 xl:col-span-1"><span className="block text-xs text-muted-foreground">商品名</span><input name="name" placeholder="例：運動会 DVD" className={`${inputClass} w-full`} /></label>
               <label className="space-y-1"><span className="block text-xs text-muted-foreground">価格</span><input name="price" inputMode="numeric" className={`${inputClass} w-full`} /></label>
               <label className="space-y-1"><span className="block text-xs text-muted-foreground">2枚目以降</span><input name="secondPrice" inputMode="numeric" className={`${inputClass} w-full`} /></label>
               <label className="space-y-1"><span className="block text-xs text-muted-foreground">締切後</span><input name="latePrice" inputMode="numeric" className={`${inputClass} w-full`} /></label>
