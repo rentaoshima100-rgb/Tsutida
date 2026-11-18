@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isDemo } from "@/lib/demo";
 
 // ログインの確認（4章）とセッションの更新。権限の最終確認は各画面・各処理のサーバー側でも行う。
 
@@ -46,7 +47,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (isAdminPath(pathname) && (!claims || claims.aal !== "aal2")) {
+  if (isAdminPath(pathname) && (!claims || (claims.aal !== "aal2" && !isDemo()))) {
     const url = request.nextUrl.clone();
     url.pathname = "/admin/login";
     url.search = "";

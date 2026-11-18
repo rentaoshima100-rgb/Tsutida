@@ -8,12 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { adminLogin, type AdminLoginState } from "./actions";
 
-export function AdminLoginForm() {
+export function AdminLoginForm({ demo = false }: { demo?: boolean }) {
   const [state, action] = useActionState(adminLogin, { step: "password" } as AdminLoginState);
 
   if (state.step === "password") {
     return (
-      <form action={action} className="space-y-4">
+      <form action={action} className="space-y-4" noValidate={demo}>
         {state.message ? <Notice tone="error">{state.message}</Notice> : null}
         <div className="space-y-1.5">
           <Label htmlFor="email">メールアドレス</Label>
@@ -43,7 +43,11 @@ export function AdminLoginForm() {
           <p className="break-all text-center font-mono text-xs text-muted-foreground">手で入力する場合：{state.secret}</p>
         </div>
       ) : (
-        <p className="text-sm">認証アプリに表示されている6桁の確認コードを入力してください。</p>
+        <p className="text-sm">
+          {demo
+            ? "本番では、認証アプリに表示されている6桁の確認コードを入力します。デモでは好きな数字を入れて進めてください。"
+            : "認証アプリに表示されている6桁の確認コードを入力してください。"}
+        </p>
       )}
       <div className="space-y-1.5">
         <Label htmlFor="code">確認コード（6桁）</Label>
