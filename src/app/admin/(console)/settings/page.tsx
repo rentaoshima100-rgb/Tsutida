@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ActionForm } from "@/components/admin/action-form";
 import { PageHeader, Panel, inputClass, selectClass } from "@/components/admin/ui";
 import { SubmitButton } from "@/components/forms/submit-button";
+import { isDemo } from "@/lib/demo";
 import { requireStaff } from "@/lib/server/auth";
 import { getSettings } from "@/lib/server/settings";
 import { createAdminClient } from "@/lib/supabase/server";
@@ -27,7 +28,9 @@ const T = ({ label, name, value, rows = 8 }: { label: string; name: string; valu
 export default async function SettingsAdminPage() {
   const me = await requireStaff();
   const s = await getSettings();
-  const { data: staff } = await createAdminClient().from("staff").select("*").order("created_at");
+  const { data: allStaff } = await createAdminClient().from("staff").select("*").order("created_at");
+  // デモでは、ログイン中のデモ管理者だけを出す（実際の管理者のメールアドレスを見せない）
+  const staff = isDemo() ? (allStaff ?? []).filter((x) => x.user_id === me.user_id) : allStaff;
   const b = s.business_info;
   const faqText = s.page_faq.map((f) => `Q: ${f.q}\nA: ${f.a}`).join("\n\n");
   return (

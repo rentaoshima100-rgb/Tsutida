@@ -44,6 +44,9 @@ export function env(): Env {
   if (parsed.data.PAYMENT_GATEWAY === "fake" && process.env.VERCEL_ENV === "production") {
     throw new Error("PAYMENT_GATEWAY=fake は本番では使えません");
   }
+  if (process.env.DEMO_MODE === "1" && process.env.VERCEL_ENV === "production") {
+    throw new Error("DEMO_MODE=1 は本番では使えません");
+  }
   cached = parsed.data;
   return cached;
 }

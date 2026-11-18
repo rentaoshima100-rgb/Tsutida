@@ -48,6 +48,7 @@ npm run dev                   # http://localhost:3000
 - `APP_BASE_URL=http://localhost:3000`
 - `CRON_SECRET`・`UNSUBSCRIBE_SIGNING_SECRET`・`IP_HASH_SECRET`：16文字以上の任意の文字列
 - `PAYMENT_GATEWAY=fake`：Stripe の代わりに擬似決済（`/dev/fake-checkout`）を使う。本番（`VERCEL_ENV=production`）では起動しない
+- `DEMO_MODE=1`：先方に見てもらうためのデモ用ログイン。メールアドレスの欄に「A」で管理画面、「B」で会員の画面に入る。パスワード・確認番号・確認コードは何を入れても通り、メールは送らない。本番（`VERCEL_ENV=production`）では無効で、起動もしない
 - `MAIL_TRANSPORT=smtp`、`SMTP_URL=smtp://127.0.0.1:54325`：メールは Mailpit（http://127.0.0.1:54324）に届く
 
 開発用データ：

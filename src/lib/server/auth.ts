@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { isDemo } from "@/lib/demo";
 import { createAdminClient, createUserClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/database.types";
 
@@ -95,7 +96,8 @@ export async function ensureMemberRow(userId: string): Promise<MemberRow | null>
 /** 管理者・保守としてログインし、TOTP 済み（aal2）であること（3章）。違えば null */
 export const getStaff = cache(async (): Promise<StaffRow | null> => {
   const claims = await getClaims();
-  if (!claims?.sub || claims.aal !== "aal2") return null;
+  // デモでは2段階認証を通ったものとして扱う（本番では isDemo() は必ず false）
+  if (!claims?.sub || (claims.aal !== "aal2" && !isDemo())) return null;
   const admin = createAdminClient();
   const { data } = await admin.from("staff").select("*").eq("user_id", claims.sub).eq("active", true).maybeSingle();
   return data ?? null;

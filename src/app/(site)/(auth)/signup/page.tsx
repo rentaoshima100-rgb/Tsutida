@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { InAppBrowserNotice } from "@/components/site/in-app-browser-notice";
+import { Notice } from "@/components/site/notice";
+import { isDemo } from "@/lib/demo";
 import { getMember, safeNextPath } from "@/lib/server/auth";
 import { getPublicSettings } from "@/lib/server/settings";
 import { SignupForm } from "./signup-form";
@@ -21,6 +23,11 @@ export default async function SignupPage(props: PageProps<"/signup">) {
       <p className="leading-8">
         登録は最初の1回だけです。ご家族それぞれが、ご自分のメールアドレスで登録できます。
       </p>
+      {isDemo() ? (
+        <Notice tone="info" title="デモ環境です">
+          本番では、登録したメールアドレスに6桁の確認番号が届き、その番号を入力すると登録が完了します。デモではメールを送らないので、次の画面で好きな数字を入れて進めてください。
+        </Notice>
+      ) : null}
       <SignupForm next={next} consentLabel={s.consent_wording.label} />
       <p className="text-center">
         登録済みの方は

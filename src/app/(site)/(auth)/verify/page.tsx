@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { Notice } from "@/components/site/notice";
+import { isDemo } from "@/lib/demo";
 import { VerifyForm } from "./verify-form";
 
 export const metadata: Metadata = { title: "確認番号の入力" };
@@ -31,6 +32,11 @@ export default async function VerifyPage(props: PageProps<"/verify">) {
       <p className="leading-8">
         {masked} に、6桁の確認番号を送りました。メールに書かれた番号を入力してください。
       </p>
+      {isDemo() ? (
+        <Notice tone="info" title="デモ環境です">
+          本番では、ここで上のメールアドレスに確認番号のメールが届きます。届いた6桁の番号を入力すると、ご本人のメールアドレスだと確かめられて、登録が完了します。デモではメールを送らないので、好きな数字を入れて「登録を完了する」を押してください。
+        </Notice>
+      ) : null}
       <VerifyForm resent={sp.resent === "1"} />
       <Notice tone="info" title="メールが届かないとき">
         迷惑メールのフォルダをご確認ください。携帯電話のメールをお使いの場合は、「@order.t-eizou.com」からのメールを受け取れるように設定してください。すでに登録済みのメールアドレスの場合は、番号は届きません。

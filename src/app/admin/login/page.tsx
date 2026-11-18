@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Notice } from "@/components/site/notice";
+import { isDemo } from "@/lib/demo";
 import { AdminLoginForm } from "./login-form";
 
 export const metadata: Metadata = { title: "管理画面ログイン", robots: { index: false } };
@@ -15,7 +16,12 @@ export default async function AdminLoginPage(props: PageProps<"/admin/login">) {
           <h1 className="text-xl font-bold">管理画面</h1>
         </div>
         {sp.reset === "1" ? <Notice tone="success">パスワードを決めました。続けてログインしてください。</Notice> : null}
-        <AdminLoginForm />
+        {isDemo() ? (
+          <Notice tone="info" title="デモ環境です">
+            メールアドレスの欄に「A」と入れると管理画面、「B」と入れると会員（保護者）の画面に入ります。パスワードと確認コードは何でもかまいません。ほかの文字でも管理画面に入ります。本番では、パスワードに加えて、スマートフォンの認証アプリに出る6桁の確認コード（2段階認証）が必要です。
+          </Notice>
+        ) : null}
+        <AdminLoginForm demo={isDemo()} />
       </div>
     </main>
   );

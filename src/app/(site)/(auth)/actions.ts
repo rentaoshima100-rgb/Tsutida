@@ -3,8 +3,10 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { demoSide, isDemo } from "@/lib/demo";
 import { isKana, tidyKana } from "@/lib/domain/kana";
 import { ensureMemberRow, safeNextPath } from "@/lib/server/auth";
+import { demoAdminSignIn, demoCreateMember, demoMemberSignIn } from "@/lib/server/demo-auth";
 import { getSettings } from "@/lib/server/settings";
 import { createAdminClient, createUserClient } from "@/lib/supabase/server";
 import { str, type FormState } from "@/lib/form";
@@ -44,20 +46,26 @@ export async function signup(_prev: FormState, fd: FormData): Promise<FormState>
     return { errors, values };
   }
   const settings = await getSettings();
+  const metadata = {
+    signup_kind: "member",
+    full_name: parsed.data.fullName,
+    full_name_kana: tidyKana(parsed.data.fullNameKana),
+    phone: parsed.data.phone.normalize("NFKC"),
+    marketing_opt_in: values.marketing === "on",
+    consent_version: settings.consent_wording.version,
+  };
+  if (isDemo()) {
+    // デモ：メールを送らずにアカウントを作り、確認番号の画面へ進む（番号は何を入れても通る）
+    await demoCreateMember({ email: parsed.data.email, password: parsed.data.password, metadata });
+    await rememberEmail(PENDING_EMAIL, parsed.data.email);
+    if (values.next) (await cookies()).set(NEXT_COOKIE, safeNextPath(values.next), { httpOnly: true, sameSite: "lax", maxAge: 60 * 60, path: "/" });
+    redirect("/verify");
+  }
   const supabase = await createUserClient();
   const { error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
-    options: {
-      data: {
-        signup_kind: "member",
-        full_name: parsed.data.fullName,
-        full_name_kana: tidyKana(parsed.data.fullNameKana),
-        phone: parsed.data.phone.normalize("NFKC"),
-        marketing_opt_in: values.marketing === "on",
-        consent_version: settings.consent_wording.version,
-      },
-    },
+    options: { data: metadata },
   });
   if (error) {
     if (/weak|password/i.test(error.message)) return { errors: { password: "もう少し推測されにくいパスワードにしてください" }, values };
@@ -74,6 +82,13 @@ export async function verifySignup(_prev: FormState, fd: FormData): Promise<Form
   const jar = await cookies();
   const email = jar.get(PENDING_EMAIL)?.value;
   if (!email) return { message: "時間がたったため、手続きが切れました。もう一度、会員登録またはログインをしてください" };
+  if (isDemo()) {
+    if (!(await demoMemberSignIn(email))) return { message: "デモ用のログインができませんでした。時間をおいて、もう一度お試しください" };
+    jar.delete(PENDING_EMAIL);
+    const demoNext = jar.get(NEXT_COOKIE)?.value;
+    jar.delete(NEXT_COOKIE);
+    redirect(demoNext ? safeNextPath(demoNext) : "/mypage/children?welcome=1");
+  }
   const token = str(fd, "token").normalize("NFKC").replace(/\D/g, "");
   if (token.length !== 6) return { errors: { token: "メールに届いた6桁の番号を入力してください" } };
 
@@ -92,6 +107,7 @@ export async function verifySignup(_prev: FormState, fd: FormData): Promise<Form
 export async function resendSignupCode(): Promise<FormState> {
   const email = (await cookies()).get(PENDING_EMAIL)?.value;
   if (!email) return { message: "時間がたったため、手続きが切れました。もう一度、会員登録をしてください" };
+  if (isDemo()) return { ok: true, message: "デモではメールを送りません。本番では、ここで確認番号をもう一度送ります" };
   const supabase = await createUserClient();
   const { error } = await supabase.auth.resend({ type: "signup", email });
   if (error) return { message: "60秒ほど待ってから、もう一度お試しください" };
@@ -101,6 +117,15 @@ export async function resendSignupCode(): Promise<FormState> {
 export async function login(_prev: FormState, fd: FormData): Promise<FormState> {
   const values = { email: str(fd, "email").toLowerCase(), next: str(fd, "next") };
   const password = String(fd.get("password") ?? "");
+  if (isDemo()) {
+    // デモ：何を入れてもログインできる。メールアドレスの欄が「A」なら管理画面に入る
+    if (demoSide(values.email) === "admin") {
+      if (!(await demoAdminSignIn())) return { message: "デモ用のログインができませんでした。時間をおいて、もう一度お試しください", values };
+      redirect("/admin");
+    }
+    if (!(await demoMemberSignIn(values.email))) return { message: "デモ用のログインができませんでした。時間をおいて、もう一度お試しください", values };
+    redirect(safeNextPath(values.next));
+  }
   if (!values.email || !password) return { message: "メールアドレスとパスワードを入力してください", values };
   const supabase = await createUserClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email: values.email, password });
@@ -134,6 +159,11 @@ export async function logout() {
 
 export async function requestPasswordReset(_prev: FormState, fd: FormData): Promise<FormState> {
   const email = str(fd, "email").toLowerCase();
+  if (isDemo()) {
+    // デモ：メールは送らず、確認番号の入力へ進む
+    await rememberEmail(RESET_EMAIL, email || "demo");
+    return { ok: true, values: { email } };
+  }
   if (!z.string().email().safeParse(email).success) return { errors: { email: "メールアドレスを正しく入力してください" }, values: { email } };
   const supabase = await createUserClient();
   // 登録の有無は画面に出さない
@@ -146,6 +176,12 @@ export async function confirmPasswordReset(_prev: FormState, fd: FormData): Prom
   const jar = await cookies();
   const email = jar.get(RESET_EMAIL)?.value;
   if (!email) return { message: "時間がたったため、手続きが切れました。もう一度メールアドレスを入力してください" };
+  if (isDemo()) {
+    // デモ：パスワードは変えずに、そのままログインする
+    jar.delete(RESET_EMAIL);
+    if (!(await demoMemberSignIn(email))) return { ok: true, message: "デモ用のログインができませんでした。時間をおいて、もう一度お試しください", values: { email } };
+    redirect("/events");
+  }
   const token = str(fd, "token").normalize("NFKC").replace(/\D/g, "");
   const password = String(fd.get("password") ?? "");
   if (token.length !== 6) return { ok: true, errors: { token: "メールに届いた6桁の番号を入力してください" }, values: { email } };
